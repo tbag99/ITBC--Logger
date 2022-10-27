@@ -86,6 +86,7 @@ private UserRole userRole;
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", userRole=" + userRole +
                 '}';
     }
 }

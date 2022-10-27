@@ -10,7 +10,7 @@ import java.util.*;
 @Component
 public class TokenDaoRepo implements TokenDao {
 
-    private Map<UUID, String> tokenDB = new HashMap<>();
+    private final Map<UUID, String> tokenDB = new HashMap<>();
 
     @Override
     public int generateToken(String username) {
@@ -44,9 +44,32 @@ public class TokenDaoRepo implements TokenDao {
             }
         }
 
-            return token;
+        return token;
 
     }
 
+    @Override
+    public boolean isAdmin(UUID id) {
+        for (Map.Entry<UUID, String> pair : tokenDB.entrySet()) {
+            if (pair.getValue().equals("admin")){
+                {if(pair.getKey().equals(id))
+                    return true;
+                }
+            }
 
+        }
+            return false;
+
+
+    }
+
+    @Override
+    public boolean canCreate(UUID id) {
+        for(Map.Entry<UUID, String> pair : tokenDB.entrySet()) {
+            if(pair.getKey().equals(id))
+                return true;
+            }
+        return false;
+
+    }
 }

@@ -11,11 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,7 +25,8 @@ public class ClientController {
 
     private final ClientJpaRepo clientJpaRepo;
     private final TokenDao tokenDao;
-@Autowired
+
+    @Autowired
     public ClientController(ClientRepo clientRepo, ClientJpaRepo clientJpaRepo, TokenDao tokenDao) {
         this.clientRepo = clientRepo;
         this.clientJpaRepo = clientJpaRepo;
@@ -70,10 +69,23 @@ public class ClientController {
     }
 
 
+    @GetMapping("/api/clients")
+    public ResponseEntity<List> getAllClients(@RequestHeader UUID id) {
 
-    @GetMapping("/api/clients/all")
-    public List<User> getAllClients(){
-       return clientJpaRepo.findAll();
+       if( tokenDao.canCreate(id)) {
+           if (!(tokenDao.isAdmin(id))) {
+
+
+               return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+           }
+       }
+
+
+//        if(!(UserRole.valueOf(admintoken).equals("ADMIN"))) {
+//            return null;
+//        }
+       return ResponseEntity.status(HttpStatus.ACCEPTED).body(clientRepo.getAllClients());
+
     }
 
 
@@ -89,30 +101,43 @@ public class ClientController {
         String password = user.getPassword();
         String account = user.getUsername();
 
+//        String role = "";
+//
+//        if(clientJpaRepo.checkRole(user.getUserRole().toString())!=0){
+//            role = user.getUserRole().toString();
+//        }
 
 
-        if (clientJpaRepo.isPasswordExist(password) ==0 || clientJpaRepo.isAccountExist(account) == 0) {
+        if (clientJpaRepo.isPasswordExist(password) == 0 || clientJpaRepo.isAccountExist(account) == 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("invalid credidentials");
         }
 
-        if(clientJpaRepo.isAccountExist(account)==1){
-            if(clientJpaRepo.isPasswordExist(password)==0){
+        if (clientJpaRepo.isAccountExist(account) == 1) {
+            if (clientJpaRepo.isPasswordExist(password) == 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("incorect password");
             }
         }
-if(tokenDao.contains(account)){
-    return ResponseEntity.status(HttpStatus.OK).body("token = " +tokenDao.getToken(account));
-}
-if(tokenDao.generateToken(account)!=1) {
-    return ResponseEntity.status(HttpStatus.CONFLICT).body("Token Not Created");
-}
+        if (tokenDao.contains(account)) {
+            return ResponseEntity.status(HttpStatus.OK).body(" Token = " + tokenDao.getToken(account));
+        }
+        if (tokenDao.generateToken(account) != 1) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Token Not Created");
+        }
         return ResponseEntity.status(HttpStatus.OK).body("Token created " + account +
                 "token = " + tokenDao.getToken(account));
     }
 
 
+    @PatchMapping("/api/clients/{id}/changepassword")
+
+    public ResponseEntity<String> changeClientpassword(@RequestBody String password, @RequestParam UUID id) {
+        if(!(tokenDao.isAdmin(id))){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("NOT ADMIN TOKEN");
+        }
+
+        clientJpaRepo.changePassword(password);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Successful change");
+
+
+    }
 }
-
-
-
-

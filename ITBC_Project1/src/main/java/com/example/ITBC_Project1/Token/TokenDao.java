@@ -12,4 +12,8 @@ public interface TokenDao {
     boolean contains(String account);
 
     UUID getToken(String username);
+
+    boolean isAdmin(UUID id);
+
+    boolean canCreate(UUID id);
 }
