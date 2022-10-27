@@ -5,22 +5,22 @@ import java.util.UUID;
 
 
 @Entity
-@Table(name = "clients")
+@Table(name = "users")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false)
 private UUID id;
-@Column(name = "username" ,unique = true,length = 50)
+@Column(name = "username" ,unique = true)
 private String username;
-    @Column(name = "email" ,unique = true,length = 50)
+    @Column(name = "email" ,unique = true)
 private String email;
-    @Column(name = "password" ,unique = true,length =80)
+    @Column(name = "password" ,unique = true)
 private String password ;
-//@Enumerated(EnumType.STRING)
-//@Column(name = "userRole" , length =80)
-//private UserRole userRole;
+@Enumerated(EnumType.STRING)
+@Column(name = "userRole" )
+private UserRole userRole;
 
 
 
@@ -31,12 +31,12 @@ private String password ;
     }
 
 
-    public User(String username, String email, String password) {
-
+    public User(String username, String email, String password, UserRole userRole) {
+        this.id = UUID.randomUUID();
         this.username = username;
         this.email = email;
         this.password = password;
-
+        this.userRole = userRole;
     }
 
     public UUID getId() {
@@ -71,13 +71,13 @@ private String password ;
         this.password = password;
     }
 
-//    public UserRole getUserRole() {
-//        return userRole;
-//    }
-//
-//    public void setUserRole(UserRole userRole) {
-//        this.userRole = userRole;
-//    }
+    public UserRole getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
+    }
 
     @Override
     public String toString() {

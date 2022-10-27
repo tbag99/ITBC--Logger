@@ -15,11 +15,11 @@ public class ClientSQL implements ClientRepo{
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public void insertClient(User user) {
+    public void insertUser(User user) {
 
-        String action = "INSERT INTO clients ([id],[username],[email],[password]) VALUES ('"
+        String action = "INSERT INTO users ([id],[username],[email],[password],[userRole]) VALUES ('"
                 + user.getId() + "','" + user.getUsername() + "','"
-                + user.getEmail()+  "','" + user.getPassword()+  "')";
+                + user.getEmail()+  "','" + user.getPassword()+ "','" + user.getUserRole()+ "')";
 
         jdbcTemplate.execute(action);
     }

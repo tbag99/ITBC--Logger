@@ -12,9 +12,11 @@ public class LogSQL implements LogRepo{
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public void createLog(Log log,String token) {
-        String action = "INSERT INTO log ([id],[messesage],[logType]) VALUES ('"
-                + log.getId() + "','" +log.getMessesage() + "','" + log.getLogType()+ "')";
+    public void createLog(Log log) {
+        //insert table token
+        String action = "INSERT INTO Logs ([id],[message],[logType],[localDate]) VALUES ('"
+                + log.getId() + "','" +log.getMessage() + "','" + log.getLogType()+
+                "','" + log.getLocalDate()+ "')";
 
         jdbcTemplate.execute(action);
 

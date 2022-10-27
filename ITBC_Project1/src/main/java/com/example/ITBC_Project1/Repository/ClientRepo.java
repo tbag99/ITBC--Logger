@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ClientRepo {
 
-    void insertClient(User user);
+    void insertUser(User user);
 
 
 

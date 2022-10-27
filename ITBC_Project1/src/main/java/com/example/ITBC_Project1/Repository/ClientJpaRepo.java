@@ -16,13 +16,21 @@ public interface ClientJpaRepo extends JpaRepository<User, UUID> {
 
     User findByUsername(String username);
 
-    @Query(value = "SELECT COUNT(*) FROM clients WHERE username=:username", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM users WHERE username=:username", nativeQuery = true)
     Integer isDuplicateName(@Param("username") String username);
 
+    @Query(value = "SELECT COUNT(*) FROM users WHERE username=:account", nativeQuery = true)
+    Integer isAccountExist(@Param("account") String username);
 
-    @Query(value = "SELECT COUNT(*) FROM clients WHERE email=:email", nativeQuery = true)
+
+    @Query(value = "SELECT COUNT(*) FROM users WHERE email=:email", nativeQuery = true)
     Integer isDuplicateEmail(@Param("email") String email);
 
-    @Query(value = "SELECT COUNT(*) FROM clients WHERE password=:password", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM users WHERE password=:password", nativeQuery = true)
     Integer isPasswordExist(@Param("password") String password);
+
+    @Query(value = "SELECT COUNT(*) FROM users WHERE userRole=:userRole", nativeQuery = true)
+    Integer checkRole(@Param("userRole") String userRole);
+
+
 }
