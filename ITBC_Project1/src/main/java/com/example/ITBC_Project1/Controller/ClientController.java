@@ -84,8 +84,6 @@ public class ClientController {
 
         String password = user.getPassword();
         String account = user.getUsername();
-        //Missing decode password
-        // boolean passwordIsValid = encoder.matches("marko123", hashPassword);
 
 
         if (clientJpaRepo.isPasswordExist(password) == 0 || clientJpaRepo.isAccountExist(account) == 0) {
