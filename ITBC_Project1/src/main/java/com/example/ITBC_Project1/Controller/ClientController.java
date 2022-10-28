@@ -41,13 +41,12 @@ public class ClientController {
     @PostMapping("/api/clients/register")
     public ResponseEntity<String> registar(@RequestBody User user) {
 
-
         if (clientJpaRepo.isDuplicateName(user.getUsername()) != 0 || clientJpaRepo.isDuplicateEmail(user.getEmail()) != 0) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Username or Email already exist");
         }
 
 
-        if (user.getUsername().length() < 3 || passwordValidation.isPasswordValid(user.getPassword())
+        if (user.getUsername().length() < 3 || !(passwordValidation.isPasswordValid(user.getPassword()))
                 || !(user.getEmail().contains("@")) || !(user.getEmail().contains("."))) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad credentials");
         }
@@ -105,7 +104,7 @@ public class ClientController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Token Not Created");
         }
         return ResponseEntity.status(HttpStatus.OK).body("Token created " + account +
-                "token = " + tokenDao.getToken(account));
+                " token = " + tokenDao.getToken(account));
     }
 
 
