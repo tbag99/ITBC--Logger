@@ -5,7 +5,6 @@ import com.example.ITBC_Project1.Repository.LogRepo;
 import com.example.ITBC_Project1.Token.TokenDao;
 import com.example.ITBC_Project1.entity.Log;
 import com.example.ITBC_Project1.entity.User;
-import com.example.ITBC_Project1.entity.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,19 +29,9 @@ public class LogController {
     }
 
 
-    //@Post - Create Log
-//Endpoint URL: /api/logs/create
-//Request Body,Request Headers
-//Response:
-//201 - Created
-//400 - Bad Request , Incorrect logType
-//401 - Unauthorized , Incorrect token
-//413 - Payload too large, Message should be less than 1024
-
-
     @PostMapping("/api/logs/create")
-    public ResponseEntity<String> createLog(@RequestBody Log log, @RequestHeader UUID token,User user) {
-        if (!(tokenDao.canCreate(token))) {
+    public ResponseEntity<String> createLog(@RequestBody Log log, @RequestHeader UUID authorization, User user) {
+        if (!(tokenDao.canCreate(authorization))) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect token");
         }
 
@@ -50,20 +39,15 @@ public class LogController {
                 log.getLogType().toString().equals("OK"))) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorect logType");
         }
-        if(log.getMessage().length() > 1024){
+        if (log.getMessage().length() > 1024) {
             return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("Messeage should be less than 1024");
         }
 
-            log.setLocalDate(LocalDate.now());
-            log.setId(UUID.randomUUID());
-            logRepo.createLog(log);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Created");
-        }
-
-
-
-
-
+        log.setLocalDate(LocalDate.now());
+        log.setId(UUID.randomUUID());
+        logRepo.createLog(log);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Created");
+    }
 
 
 ////@Get - Search Logs
@@ -76,4 +60,6 @@ public class LogController {
 ////  -Incorrect token
 ////}
 //}
+
+
 }

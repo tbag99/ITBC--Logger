@@ -19,9 +19,6 @@ public interface ClientJpaRepo extends JpaRepository<User, UUID> {
     User findByUsername(String username);
 
 
-    @Transactional
-@Query(value ="UPDATE users SET password=:password ",nativeQuery = true)
-  Void changePassword(@Param("password")String password);
 
 
 
@@ -39,8 +36,8 @@ public interface ClientJpaRepo extends JpaRepository<User, UUID> {
     @Query(value = "SELECT COUNT(*) FROM users WHERE [password]=:password", nativeQuery = true)
     Integer isPasswordExist(@Param("password") String password);
 
-    @Query(value = "SELECT COUNT(*) FROM users WHERE userRole=:userRole", nativeQuery = true)
-    Integer checkRole(@Param("userRole") String userRole);
+//    @Query(value = "SELECT COUNT(*) FROM users WHERE userRole=:userRole", nativeQuery = true)
+//    Integer checkRole(@Param("userRole") String userRole);
 
 
 

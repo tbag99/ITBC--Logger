@@ -11,6 +11,8 @@ public interface ClientRepo {
 
     void insertUser(User user);
 
+    void changePassword(UUID clientId,String password);
+
 List<User> getAllClients();
 
 

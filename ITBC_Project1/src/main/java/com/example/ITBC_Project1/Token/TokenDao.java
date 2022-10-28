@@ -16,4 +16,5 @@ public interface TokenDao {
     boolean isAdmin(UUID id);
 
     boolean canCreate(UUID id);
+
 }

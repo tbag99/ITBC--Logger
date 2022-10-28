@@ -4,7 +4,7 @@ package com.example.ITBC_Project1.Controller;
 import com.example.ITBC_Project1.Repository.ClientJpaRepo;
 import com.example.ITBC_Project1.Repository.ClientRepo;
 import com.example.ITBC_Project1.Token.TokenDao;
-import com.example.ITBC_Project1.Token.TokenDaoRepo;
+import com.example.ITBC_Project1.config.PasswordValidation;
 import com.example.ITBC_Project1.entity.User;
 import com.example.ITBC_Project1.entity.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,25 +24,18 @@ public class ClientController {
 
     private final ClientJpaRepo clientJpaRepo;
     private final TokenDao tokenDao;
+    private final BCryptPasswordEncoder encoder;
+
+    private final PasswordValidation passwordValidation;
 
     @Autowired
-    public ClientController(ClientRepo clientRepo, ClientJpaRepo clientJpaRepo, TokenDao tokenDao) {
+    public ClientController(ClientRepo clientRepo, ClientJpaRepo clientJpaRepo, TokenDao tokenDao, BCryptPasswordEncoder encoder, PasswordValidation passwordValidation) {
         this.clientRepo = clientRepo;
         this.clientJpaRepo = clientJpaRepo;
         this.tokenDao = tokenDao;
+        this.encoder = encoder;
+        this.passwordValidation = passwordValidation;
     }
-//@Post - Registar
-    //Endpoint URL: /api/clients/register
-    //Request body
-    //Responses:
-    //201 - Registered
-    //400 - Bad Request
-    //email must be valid
-    //username at least 3 characters
-    //password at least 8 characters and one letter and one number
-    //409 - Conflict
-    //username already exists
-    //email already exists
 
 
     @PostMapping("/api/clients/register")
@@ -54,14 +46,16 @@ public class ClientController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Username or Email already exist");
         }
 
-        if (user.getUsername().length() < 3 || user.getPassword().length() < 8
-                || (user.getEmail().contains("@") && user.getEmail().contains("."))) {
+
+        if (user.getUsername().length() < 3 || passwordValidation.isPasswordValid(user.getPassword())
+                || !(user.getEmail().contains("@")) || !(user.getEmail().contains("."))) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad credentials");
         }
 
 
         user.setId(UUID.randomUUID());
         user.setUserRole(UserRole.CLIENT);
+        user.setPassword(encoder.encode(user.getPassword()));
 
 
         clientRepo.insertUser(user);
@@ -70,51 +64,38 @@ public class ClientController {
 
 
     @GetMapping("/api/clients")
-    public ResponseEntity<List> getAllClients(@RequestHeader UUID id) {
+    public ResponseEntity<List> getAllClients(@RequestHeader UUID  authorization) {
 
-       if( tokenDao.canCreate(id)) {
-           if (!(tokenDao.isAdmin(id))) {
-
-
-               return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-           }
-       }
+        if (tokenDao.canCreate(authorization)) {
+            if (!(tokenDao.isAdmin(authorization))) {
 
 
-//        if(!(UserRole.valueOf(admintoken).equals("ADMIN"))) {
-//            return null;
-//        }
-       return ResponseEntity.status(HttpStatus.ACCEPTED).body(clientRepo.getAllClients());
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            }
+        }
+
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(clientRepo.getAllClients());
 
     }
 
 
-    //@Post - Login
-    //Endpoint URL: /api/clients/login
-    //Request body
-    //Response:
-    // 200 - ok
-    //400 - Bad Request
-
     @PostMapping("/api/clients/login")
     public ResponseEntity<String> loginClinet(@RequestBody User user) {
+
         String password = user.getPassword();
         String account = user.getUsername();
-
-//        String role = "";
-//
-//        if(clientJpaRepo.checkRole(user.getUserRole().toString())!=0){
-//            role = user.getUserRole().toString();
-//        }
+        //Missing decode password
+        // boolean passwordIsValid = encoder.matches("marko123", hashPassword);
 
 
         if (clientJpaRepo.isPasswordExist(password) == 0 || clientJpaRepo.isAccountExist(account) == 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("invalid credidentials");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email/Username or password incorrect");
         }
 
         if (clientJpaRepo.isAccountExist(account) == 1) {
             if (clientJpaRepo.isPasswordExist(password) == 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("incorect password");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorect password");
             }
         }
         if (tokenDao.contains(account)) {
@@ -128,14 +109,20 @@ public class ClientController {
     }
 
 
-    @PatchMapping("/api/clients/{id}/changepassword")
+    @PatchMapping("/api/clients/{clientId}/reset-password")
 
-    public ResponseEntity<String> changeClientpassword(@RequestBody String password, @RequestParam UUID id) {
-        if(!(tokenDao.isAdmin(id))){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("NOT ADMIN TOKEN");
+    public ResponseEntity<String> changeClientpassword(@RequestBody User user, @RequestParam(name = "clientId") UUID id, @RequestHeader UUID authorization) {
+
+
+        if (!(tokenDao.isAdmin(authorization))) {
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Correct token, but not admin");
         }
 
-        clientJpaRepo.changePassword(password);
+        if (user.getPassword().equals("")) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No content");
+        }
+        clientRepo.changePassword(id, encoder.encode(user.getPassword()));
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("Successful change");
 
 

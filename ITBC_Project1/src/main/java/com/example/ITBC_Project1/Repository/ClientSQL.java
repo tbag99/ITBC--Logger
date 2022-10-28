@@ -2,8 +2,13 @@ package com.example.ITBC_Project1.Repository;
 
 import com.example.ITBC_Project1.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -37,5 +42,12 @@ public class ClientSQL implements ClientRepo {
         );
     }
 
+    @Override
+    public void changePassword(UUID clientId,String password) {
+        
 
+        String action  ="UPDATE users SET [password]='"+password+"' WHERE id='"+clientId+"'";
+       jdbcTemplate.execute(action);
+
+    }
 }
