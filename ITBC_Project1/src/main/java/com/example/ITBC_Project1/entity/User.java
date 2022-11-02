@@ -11,20 +11,22 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false)
-private UUID id;
-@Column(name = "username" ,unique = true)
-private String username;
-    @Column(name = "email" ,unique = true)
-private String email;
-    @Column(name = "password" ,unique = true)
-private String password ;
-@Enumerated(EnumType.STRING)
-@Column(name = "userRole" )
-private UserRole userRole;
+    private UUID id;
+    @Column(name = "username", unique = true)
+    private String username;
+    @Column(name = "email", unique = true)
+    private String email;
+    @Column(name = "password", unique = true)
+    private String password;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "userRole")
+    private UserRole userRole;
 
 
 
-
+//@Column(name="logCount")
+//private int logCount ;
+//
 
 
     public User() {
@@ -37,6 +39,7 @@ private UserRole userRole;
         this.email = email;
         this.password = password;
         this.userRole = userRole;
+        //  this.logCount = logCount;
     }
 
     public UUID getId() {
@@ -79,14 +82,20 @@ private UserRole userRole;
         this.userRole = userRole;
     }
 
+    //  public int getLogCount() {
+    //      return logCount;
+    //  }
+
+    //  public void setLogCount(int logCount) {
+    //      this.logCount = logCount;
+    //  }
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", userRole=" + userRole +
                 '}';
     }
 }

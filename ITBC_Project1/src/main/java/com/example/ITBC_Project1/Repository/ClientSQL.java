@@ -26,7 +26,8 @@ public class ClientSQL implements ClientRepo {
 
         String action = "INSERT INTO users ([id],[username],[email],[password],[userRole]) VALUES ('"
                 + user.getId() + "','" + user.getUsername() + "','"
-                + user.getEmail() + "','" + user.getPassword() + "','" + user.getUserRole() + "')";
+                + user.getEmail() + "','" + user.getPassword() + "','"
+                + user.getUserRole() +  "')";
 
         jdbcTemplate.execute(action);
     }
@@ -50,4 +51,10 @@ public class ClientSQL implements ClientRepo {
        jdbcTemplate.execute(action);
 
     }
+
+//    @Override
+//    public void updateLogCount(int count,String username) {
+//        String action  ="UPDATE users SET [logCount]='"+count+"' WHERE [username]='"+username+"'";
+//        jdbcTemplate.execute(action);
+//    }
 }

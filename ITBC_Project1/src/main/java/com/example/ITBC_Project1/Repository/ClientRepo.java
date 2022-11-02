@@ -13,6 +13,8 @@ public interface ClientRepo {
 
     void changePassword(UUID clientId,String password);
 
+ //   void updateLogCount(int count,String username);
+
 List<User> getAllClients();
 
 

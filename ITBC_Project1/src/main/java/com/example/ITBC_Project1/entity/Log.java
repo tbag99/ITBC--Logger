@@ -37,4 +37,13 @@ public class Log {
     public Log() {
 
     }
+
+    @Override
+    public String toString() {
+        return "Log{" +
+                "message='" + message + '\'' +
+                ", localDate=" + localDate +
+                ", logType=" + logType +
+                '}';
+    }
 }

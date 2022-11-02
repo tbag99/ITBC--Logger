@@ -4,16 +4,17 @@ package com.example.ITBC_Project1.Controller;
 import com.example.ITBC_Project1.Repository.LogRepo;
 import com.example.ITBC_Project1.Token.TokenDao;
 import com.example.ITBC_Project1.entity.Log;
+import com.example.ITBC_Project1.entity.LogType;
 import com.example.ITBC_Project1.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -49,17 +50,45 @@ public class LogController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Created");
     }
 
+    @GetMapping("/api/logs/search")
+    public ResponseEntity<List<Log>> searchLogs(@RequestHeader UUID authorization, @RequestParam Map<String, String> request) {
+        List<Log> allLogs = logRepo.searchLog();
+        List<Log> searchLog = new ArrayList<>();
+        LocalDate date;
+//can search missing
+        if (!(tokenDao.canCreate(authorization))) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+//try catch to add
+        if (request.get("dateFrom") != null) {
+            date = LocalDate.parse(request.get("dateFrom"));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
 
-////@Get - Search Logs
-////Endpoint URL: /api/logs/search
-////Request params,Request headers
-////Response: 400 - Bad request
-//// -Invalid dates
-////  -Invalid logType
-////401 - Unauthorized
-////  -Incorrect token
-////}
-//}
+        if (request.get("dateTo") != null) {
+            date = LocalDate.parse(request.get("dateTo"));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+
+        for (var log : allLogs) {
+            if ((request.get("message") == null) || (request.get("message").equals(log.getMessage()))) {
+                if ((request.get("logType") == null) || ((request.get("logType").equals("OK")) || (request.get("logType").equals("Error")) || (request.get("logType").equals("Warning")))) {
+                    if ((request.get("dateTo") == null) || log.getLocalDate().isBefore(LocalDate.parse(request.get("dateTo")))) {
+                        if ((request.get("dateFrom") == null) || log.getLocalDate().isAfter(LocalDate.parse(request.get("dateFrom")))) {
 
 
+                            searchLog.add(log);
+                        }
+                    }
+                }
+            }
+
+
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(searchLog);
+
+
+    }
 }

@@ -55,6 +55,7 @@ public class ClientController {
         user.setId(UUID.randomUUID());
         user.setUserRole(UserRole.CLIENT);
         user.setPassword(encoder.encode(user.getPassword()));
+       // user.setLogCount(0);
 
 
         clientRepo.insertUser(user);
@@ -96,11 +97,16 @@ public class ClientController {
             }
         }
         if (tokenDao.contains(account)) {
+
+
+
+
             return ResponseEntity.status(HttpStatus.OK).body(" Token = " + tokenDao.getToken(account));
         }
         if (tokenDao.generateToken(account) != 1) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Token Not Created");
         }
+
         return ResponseEntity.status(HttpStatus.OK).body("Token created " + account +
                 " token = " + tokenDao.getToken(account));
     }
